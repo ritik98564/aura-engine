@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Engine 10.0 - The Overclock Update</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;500;800&family=Share+Tech+Mono&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #030305;
+            background: radial-gradient(circle at 50% 50%, #0a0a10 0%, #000000 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Developer Watermark */
+        .developer-tag {
+            position: fixed; top: 25px; right: 30px; font-family: 'Orbitron', sans-serif;
+            font-size: 11px; color: rgba(255, 255, 255, 0.3); font-weight: 900;
+            letter-spacing: 3px; text-transform: uppercase; cursor: help; transition: all 0.3s ease; z-index: 1000;
+        }
+        .developer-tag:hover { color: #00f2fe; text-shadow: 0 0 10px rgba(0, 242, 254, 0.5); }
+        .dev-tooltip {
+            position: absolute; top: 30px; right: 0; background: rgba(5, 5, 8, 0.95);
+            border: 1px solid rgba(0, 242, 254, 0.4); padding: 15px 20px; border-radius: 8px; width: max-content;
+            text-align: right; opacity: 0; visibility: hidden; transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 15px 40px rgba(0,0,0,0.9); font-family: 'Share Tech Mono', monospace;
+        }
+        .developer-tag:hover .dev-tooltip { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dev-tooltip p { margin-bottom: 5px; color: #fff; font-size: 13px; }
+        .dev-tooltip span { color: #00f2fe; }
+        .dev-tooltip .legend-text { color: #f6d365; font-style: italic; margin-top: 10px; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px; }
+
+        /* Background Effects */
+        .bg-glow {
+            position: absolute; width: 70vw; height: 70vw; max-width: 800px; max-height: 800px;
+            background: radial-gradient(circle, rgba(0, 242, 254, 0.05) 0%, rgba(0,0,0,0) 60%);
+            border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            animation: pulse 6s infinite alternate ease-in-out; z-index: 0; transition: background 1.5s ease;
+        }
+        @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.5; } 100% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; } }
+
+        /* Core Card */
+        .glass-card {
+            position: relative; z-index: 1; background: rgba(12, 12, 16, 0.65);
+            backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 24px; padding: 45px;
+            width: 90%; max-width: 600px; box-shadow: 0 40px 100px rgba(0, 0, 0, 0.95); transition: all 0.5s ease;
+        }
+        .shaking { animation: shake 0.2s infinite; }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 25% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-3px, 0px) rotate(1deg); } 75% { transform: translate(3px, 2px) rotate(0deg); } 100% { transform: translate(1px, -1px) rotate(-1deg); } }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        h1 { font-family: 'Orbitron', sans-serif; font-size: 36px; font-weight: 900; background: linear-gradient(90deg, #ffffff, #8a8a9e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 4px; margin-bottom: 5px; }
+        p.subtitle { color: #4facfe; font-size: 11px; font-weight: 800; letter-spacing: 7px; text-transform: uppercase; }
+
+        /* Inputs */
+        #input-section { display: block; animation: fadeIn 0.5s ease; }
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .input-group.full { grid-column: span 2; }
+        label { font-size: 11px; color: #7a7a8e; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 2px; display: block; font-weight: 800; }
+        input, select { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); background: rgba(0, 0, 0, 0.4); color: #fff; font-size: 14px; outline: none; transition: all 0.3s; font-family: 'Poppins', sans-serif; text-align: center; appearance: none; }
+        select { cursor: pointer; text-align-last: center; } select option { background: #0a0a10; color: #fff; }
+        input:focus, select:focus { border-color: #00f2fe; background: rgba(0, 0, 0, 0.7); box-shadow: 0 0 20px rgba(0, 242, 254, 0.15); }
+
+        button.primary-btn { width: 100%; padding: 18px; border-radius: 12px; border: none; background: linear-gradient(90deg, #4facfe, #00f2fe); color: #000; font-weight: 800; font-size: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 3px; transition: all 0.3s ease; box-shadow: 0 10px 30px rgba(79, 172, 254, 0.2); }
+        button.primary-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(79, 172, 254, 0.4); }
+
+        button.reset-btn, button.action-btn { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: #fff; font-weight: 500; font-size: 13px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease; margin-top: 15px; }
+        button.reset-btn:hover, button.action-btn:hover { background: rgba(255,255,255,0.1); }
+        button.action-btn { background: rgba(255, 8, 68, 0.1); border-color: rgba(255, 8, 68, 0.3); color: #ff0844; font-weight: 800; }
+        button.action-btn:hover { background: rgba(255, 8, 68, 0.2); box-shadow: 0 0 20px rgba(255, 8, 68, 0.4); }
+
+        /* Terminal */
+        .terminal-container { display: none; text-align: center; }
+        .terminal { background: #020203; border: 1px solid #14141f; border-radius: 12px; padding: 20px; font-family: 'Share Tech Mono', monospace; font-size: 14px; color: #00f2fe; height: 160px; overflow-y: auto; text-align: left; box-shadow: inset 0 5px 15px rgba(0,0,0,0.9); }
+        .terminal p { margin-bottom: 6px; opacity: 0; transform: translateX(-10px); animation: slideIn 0.2s forwards; }
+        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+
+        /* Results */
+        #result-section { display: none; text-align: center; animation: zoomIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        
+        .target-display-name { font-size: 13px; color: #8a8a9e; font-weight: 800; letter-spacing: 5px; text-transform: uppercase; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; display: inline-block; }
+        .target-display-name span { color: #fff; }
+
+        .color-badge { display: inline-block; padding: 8px 24px; border-radius: 30px; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid transparent; display: block; width: max-content; margin: 0 auto 10px; }
+        .score { font-family: 'Orbitron', sans-serif; font-size: 64px; font-weight: 900; line-height: 1.1; margin-bottom: 5px; transition: all 0.1s ease; }
+        .cooked-stamp { display: block; font-size: 22px; color: #ff0844; letter-spacing: 4px; margin-top: 10px; text-shadow: 0 0 20px rgba(255, 8, 68, 0.6); animation: stampIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes stampIn { from { transform: scale(2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .title { font-size: 16px; color: #a0a0b0; font-weight: 500; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 25px; margin-top: 10px; }
+
+        /* Minigame Section */
+        #minigame-section { display: none; text-align: center; animation: fadeIn 0.3s ease; }
+        .timer-display { font-family: 'Orbitron', sans-serif; font-size: 48px; color: #ff0844; font-weight: 900; text-shadow: 0 0 20px rgba(255, 8, 68, 0.5); margin-bottom: 10px; }
+        .live-score { font-family: 'Orbitron', sans-serif; font-size: 32px; color: #fff; margin-bottom: 30px; }
+        
+        button.mash-btn {
+            width: 150px; height: 150px; border-radius: 50%; border: none;
+            background: radial-gradient(circle, #ff0844 0%, #a10026 100%);
+            color: #fff; font-weight: 900; font-size: 24px; cursor: pointer;
+            box-shadow: 0 0 40px rgba(255, 8, 68, 0.6), inset 0 0 20px rgba(0,0,0,0.5);
+            transition: transform 0.05s ease, box-shadow 0.1s ease; text-transform: uppercase;
+        }
+        button.mash-btn:active { transform: scale(0.9); box-shadow: 0 0 60px rgba(255, 8, 68, 0.9), inset 0 0 40px rgba(0,0,0,0.8); }
+
+        /* Visualizer */
+        .music-player { display: flex; align-items: center; justify-content: space-between; background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255,255,255,0.05); padding: 18px 25px; border-radius: 16px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 15px;}
+        .track-info { font-size: 11px; color: #fff; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; text-align: left; }
+        .track-info span { display: block; font-size: 10px; color: #6a6a7e; font-weight: 500; margin-top: 4px; letter-spacing: 2px; }
+        .equalizer { display: flex; gap: 4px; height: 30px; align-items: flex-end; }
+        .bar { width: 5px; background: #00f2fe; border-radius: 3px; height: 5px; transition: 0.2s; }
+        .bar.active { animation: bounce 0.4s infinite alternate ease-in-out; }
+        .bar:nth-child(1) { animation-delay: 0.1s; } .bar:nth-child(2) { animation-delay: 0.3s; }
+        .bar:nth-child(3) { animation-delay: 0.0s; } .bar:nth-child(4) { animation-delay: 0.4s; }
+        .bar:nth-child(5) { animation-delay: 0.2s; }
+        @keyframes bounce { 0% { height: 5px; } 100% { height: 100%; } }
+    </style>
+</head>
+<body>
+
+    <div class="developer-tag">
+        Developed by Ritik
+        <div class="dev-tooltip">
+            <p>NAME: <span>Ritik</span></p>
+            <p>AGE: <span>12</span></p>
+            <div class="legend-text">HE IS A LEGEND.</div>
+        </div>
+    </div>
+
+    <audio id="phonk-player" loop></audio>
+    <div class="bg-glow" id="bgGlow"></div>
+
+    <div class="glass-card" id="mainCard">
+        <div class="header">
+            <h1>AURA OS</h1>
+            <p class="subtitle">Identity Matrix 10.0</p>
+        </div>
+        
+        <div id="input-section">
+            <div class="input-grid">
+                <div class="input-group full">
+                    <label>Target Identity / Alias</label>
+                    <input type="text" id="nameInput" placeholder="Enter target name..." autocomplete="off" />
+                </div>
+                <div class="input-group">
+                    <label>Biological Age</label>
+                    <input type="number" id="ageInput" placeholder="21" min="1" max="120" />
+                </div>
+                <div class="input-group">
+                    <label>Class Profile</label>
+                    <input type="text" id="profInput" placeholder="e.g. Creator" autocomplete="off" />
+                </div>
+                <div class="input-group full">
+                    <label>Biological / Entity Gender</label>
+                    <select id="genderInput">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="classified">Classified / Entity</option>
+                    </select>
+                </div>
+            </div>
+            <button class="primary-btn" onclick="initiateScan()">Initiate Scan Sequence</button>
+        </div>
+
+        <div class="terminal-container" id="terminal-section">
+            <div class="terminal" id="terminal"></div>
+        </div>
+
+        <div id="minigame-section">
+            <h3 style="color: #a0a0b0; letter-spacing: 4px; margin-bottom: 20px;">SYSTEM OVERRIDE</h3>
+            <div class="timer-display" id="mgTimer">10.0</div>
+            <div class="live-score" id="mgScore">0</div>
+            <button class="mash-btn" onclick="mashButton()">MASH</button>
+        </div>
+
+        <div id="result-section">
+            <div class="target-display-name">Target: <span id="displayTargetName">UNKNOWN</span></div>
+            <div class="color-badge" id="auraColor"></div>
+            <div class="score" id="auraPoints">0</div>
+            <div class="title" id="auraTitle"></div>
+            
+            <div class="music-player">
+                <div class="track-info">AUDIO LINK: <span id="syncedTrackName">Loading...</span></div>
+                <div class="equalizer" id="eq-bars">
+                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                </div>
+            </div>
+
+            <button class="action-btn" id="grindBtn" onclick="startOverclock()">🔥 OVERCLOCK AURA 🔥</button>
+            <button class="reset-btn" onclick="resetScanner()">Scan Next Target</button>
+        </div>
+    </div>
+
+    <script>
+        const tiers = [
+            { file: "phonk1.mp3",  track: "Neon Blade - MoonDeity",        color: "Midnight Carbon", hex: "#2c3e50" },
+            { file: "phonk2.mp3",  track: "Metamorphosis - Interworld",   color: "Solar Gold",      hex: "#f6d365" },
+            { file: "phonk3.mp3",  track: "Murder In My Mind - Kordhell",  color: "Volcanic Crimson",hex: "#ff0844" },
+            { file: "phonk4.mp3",  track: "Close Eyes - DVRST",           color: "Electric Teal",   hex: "#00f2fe" },
+            { file: "phonk5.mp3",  track: "Sahara - Hensonn",             color: "Abyssal Purple",  hex: "#b12a5b" },
+            { file: "phonk6.mp3",  track: "Phonky Town - Playaphonk",     color: "Matrix Green",    hex: "#0ba360" },
+            { file: "phonk7.mp3",  track: "Rapture - INTERWORLD",         color: "Plasma Orange",   hex: "#ff9f43" },
+            { file: "phonk8.mp3",  track: "GigaChad Theme - g3ox_em",     color: "Polished Diamond",hex: "#ffffff" },
+            { file: "phonk9.mp3",  track: "Live Another Day - Kordhell",  color: "Cyber Punk Pink", hex: "#ff007f" },
+            { file: "phonk10.mp3", track: "Scopin - Kordhell",            color: "Acid Violet",     hex: "#70a1ff" }
+        ];
+
+        const legendaryNames = {
+            "ryan gosling": { tier: 7, points: 999999, title: "Literally Me" },
+            "john wick": { tier: 2, points: 1000000, title: "The Baba Yaga" },
+            "batman": { tier: 0, points: 999999, title: "Vengeance" },
+            "patrick bateman": { tier: 3, points: 500000, title: "Sigma Executive" }
+        };
+
+        const maleTitles = ["Sigma Male", "The King", "Apex Patriarch", "Lone Wolf", "Unbothered Tactician"];
+        const femaleTitles = ["Sigma Female", "The Queen", "Apex Matriarch", "Lethal Siren", "Unbothered Strategist"];
+        const entityTitles = ["Unknown Entity", "The Architect", "Apex Anomaly", "Void Walker", "Glitch in the Matrix"];
+
+        let selectedTier = null;
+        let finalPoints = 0;
+        let finalTitle = "";
+        let inputNameDisplay = "";
+        let overclockActive = false;
+
+        function initiateScan() {
+            const name = document.getElementById('nameInput').value.trim().toLowerCase();
+            const age = parseInt(document.getElementById('ageInput').value);
+            const prof = document.getElementById('profInput').value.trim().toLowerCase();
+            const gender = document.getElementById('genderInput').value;
+            
+            if (!name || isNaN(age) || !prof) { alert("All vectors required to initiate sequence."); return; }
+
+            inputNameDisplay = document.getElementById('nameInput').value.trim(); 
+            document.getElementById('input-section').style.display = "none";
+            document.getElementById('terminal-section').style.display = "block";
+            
+            calculateEngine(name, age, prof, gender);
+
+            const audio = document.getElementById('phonk-player');
+            audio.src = selectedTier.file;
+            audio.volume = 0; 
+            let playPromise = audio.play();
+            if (playPromise !== undefined) playPromise.catch(e => console.log("Audio issue: ", e));
+
+            const terminal = document.getElementById('terminal');
+            terminal.innerHTML = "";
+            runTerminalLogs(name, age, prof, gender);
+        }
+
+        function calculateEngine(name, age, prof, gender) {
+            if (name === "ritik") {
+                selectedTier = tiers[1]; 
+                finalPoints = 99999999;
+                finalTitle = "CREATOR AURA";
+                return;
+            }
+
+            if (legendaryNames[name]) {
+                const legend = legendaryNames[name];
+                selectedTier = tiers[legend.tier];
+                finalPoints = legend.points;
+                finalTitle = legend.title;
+                return;
+            }
+            
+            let hashString = name + gender + prof;
+            let hash = 0;
+            for (let i = 0; i < hashString.length; i++) hash = hashString.charCodeAt(i) + ((hash << 5) - hash);
+            hash = Math.abs(hash);
+
+            let basePoints = (hash % 200000) - 80000; 
+            let profBonus = (prof.includes("editor") || prof.includes("creator") || prof.includes("ceo")) ? 45000 : -10000;
+            let ageMult = (age >= 16 && age <= 28) ? 1.4 : 1.1;
+
+            finalPoints = Math.floor((basePoints + profBonus) * ageMult);
+            selectedTier = tiers[hash % tiers.length];
+
+            const titleIndex = hash % 5;
+            if (gender === "male") finalTitle = maleTitles[titleIndex];
+            else if (gender === "female") finalTitle = femaleTitles[titleIndex];
+            else finalTitle = entityTitles[titleIndex];
+        }
+
+        function runTerminalLogs(name, age, prof, gender) {
+            const terminal = document.getElementById('terminal');
+            const logs = [
+                `> ENGAGING IDENTITY SCAN: [${name.toUpperCase()}]...`,
+                `> DETECTING GENDER VARIABLE: [${gender.toUpperCase()}]`,
+                `> MATRIX PATH IDENTIFIED: ${prof.toUpperCase()}`,
+                `> SECURING OFFLINE AUDIO LINK...`,
+                `> BYPASSING SYSTEM FIREWALLS...`,
+                `> DEPLOYING FINAL AURA YIELD...`
+            ];
+            logs.forEach((log, index) => { setTimeout(() => { terminal.innerHTML += `<p style="color: ${selectedTier.hex}">${log}</p>`; terminal.scrollTop = terminal.scrollHeight; }, index * 600); });
+            setTimeout(() => { showFinalUI(); }, logs.length * 600 + 400);
+        }
+
+        function animateValue(obj, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const currentVal = Math.floor(progress * (end - start) + start);
+                
+                let displayText = currentVal > 0 ? `+${currentVal.toLocaleString()}` : currentVal.toLocaleString();
+                if (progress === 1 && end < 0) { displayText += `<span class="cooked-stamp">[ ABSOLUTELY COOKED 💀 ]</span>`; }
+                
+                obj.innerHTML = displayText;
+                if (progress < 1) { window.requestAnimationFrame(step); }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        function showFinalUI() {
+            const audio = document.getElementById('phonk-player');
+            audio.volume = 0.8;
+
+            document.getElementById('terminal-section').style.display = "none";
+            const resultDiv = document.getElementById('result-section');
+            document.getElementById('displayTargetName').innerText = inputNameDisplay;
+
+            if (finalPoints < 0 && !overclockActive) {
+                selectedTier = tiers[2]; 
+                finalTitle = "AURA DEBT DETECTED";
+            }
+
+            updateAesthetics();
+            animateValue(document.getElementById('auraPoints'), 0, finalPoints, 1500);
+            resultDiv.style.display = "block";
+        }
+
+        function updateAesthetics() {
+            document.getElementById('auraColor').innerText = selectedTier.color;
+            document.getElementById('auraColor').style.color = selectedTier.hex;
+            document.getElementById('auraColor').style.borderColor = `${selectedTier.hex}50`;
+            document.getElementById('auraColor').style.boxShadow = `0 0 20px ${selectedTier.hex}30`;
+            
+            document.getElementById('auraPoints').style.color = selectedTier.hex;
+            document.getElementById('auraPoints').style.textShadow = `0 0 30px ${selectedTier.hex}80, 0 0 60px ${selectedTier.hex}40`;
+            
+            document.getElementById('auraTitle').innerText = finalTitle;
+            document.getElementById('syncedTrackName').innerText = selectedTier.track;
+            
+            document.querySelectorAll('.bar').forEach(bar => { bar.style.background = selectedTier.hex; bar.classList.add('active'); });
+            document.getElementById('bgGlow').style.background = `radial-gradient(circle, ${selectedTier.hex}25 0%, rgba(0,0,0,0) 65%)`;
+        }
+
+        /* --- OVERCLOCK MINIGAME LOGIC --- */
+        let timeLeft = 10.0;
+        let timerInterval;
+
+        function startOverclock() {
+            overclockActive = true;
+            document.getElementById('result-section').style.display = "none";
+            document.getElementById('minigame-section').style.display = "block";
+            
+            // Red alert aesthetic
+            document.getElementById('bgGlow').style.background = `radial-gradient(circle, rgba(255, 8, 68, 0.2) 0%, rgba(0,0,0,0) 70%)`;
+            
+            timeLeft = 10.0;
+            document.getElementById('mgTimer').innerText = timeLeft.toFixed(1);
+            document.getElementById('mgScore').innerText = finalPoints.toLocaleString();
+
+            timerInterval = setInterval(() => {
+                timeLeft -= 0.1;
+                document.getElementById('mgTimer').innerText = timeLeft.toFixed(1);
+                
+                if(timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endOverclock();
+                }
+            }, 100);
+        }
+
+        function mashButton() {
+            if(timeLeft <= 0) return;
+            
+            // Add massive random points per click
+            const pointsGained = Math.floor(Math.random() * 5000) + 2000;
+            finalPoints += pointsGained;
+            document.getElementById('mgScore').innerText = finalPoints.toLocaleString();
+
+            // Screen Shake Effect
+            const card = document.getElementById('mainCard');
+            card.classList.add('shaking');
+            setTimeout(() => card.classList.remove('shaking'), 50);
+        }
+
+        function endOverclock() {
+            document.getElementById('minigame-section').style.display = "none";
+            
+            // Upgrade titles based on grinded score
+            if(finalPoints >= 1000000) {
+                finalTitle = "UNSTOPPABLE ANOMALY";
+                selectedTier = tiers[7]; // Diamond Tier
+            } else if (finalPoints >= 500000) {
+                finalTitle = "ASCENDED DEMIGOD";
+                selectedTier = tiers[1]; // Gold Tier
+            } else if (finalPoints > 0) {
+                finalTitle = "REDEMPTION ARC";
+                selectedTier = tiers[3]; // Teal Tier
+            }
+
+            document.getElementById('grindBtn').style.display = "none"; // Hide button so they can't spam it forever
+            document.getElementById('result-section').style.display = "block";
+            
+            updateAesthetics();
+            
+            // Pop the new score immediately
+            let displayText = finalPoints > 0 ? `+${finalPoints.toLocaleString()}` : finalPoints.toLocaleString();
+            if (finalPoints < 0) { displayText += `<span class="cooked-stamp">[ STILL COOKED 💀 ]</span>`; }
+            document.getElementById('auraPoints').innerHTML = displayText;
+        }
+
+        function resetScanner() {
+            const audio = document.getElementById('phonk-player');
+            audio.pause(); audio.currentTime = 0;
+            document.querySelectorAll('.bar').forEach(bar => bar.classList.remove('active'));
+
+            document.getElementById('result-section').style.display = "none";
+            document.getElementById('input-section').style.display = "block";
+            document.getElementById('grindBtn').style.display = "block"; 
+            
+            document.getElementById('bgGlow').style.background = `radial-gradient(circle, rgba(0, 242, 254, 0.05) 0%, rgba(0,0,0,0) 60%)`;
+            document.getElementById('nameInput').value = ""; document.getElementById('ageInput').value = ""; document.getElementById('profInput').value = "";
+            overclockActive = false;
+        }
+    </script>
+</body>
+</html>
